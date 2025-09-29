@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import Input from '@/components/ui/Input'
-import Button from '@/components/ui/Button'
+import {Input} from '@/components/ui/Input'
+import {Button} from '@/components/ui/Button'
 import { FormItem, Form } from '@/components/ui/Form'
 import { useAuth } from '@/auth'
 import { useForm, Controller } from 'react-hook-form'
@@ -141,9 +141,7 @@ const SignUpForm = (props: SignUpFormProps) => {
                     />
                 </FormItem>
                 <Button
-                    block
-                    loading={isSubmitting}
-                    variant="solid"
+                    variant="default"
                     type="submit"
                 >
                     {isSubmitting ? 'Creating Account...' : 'Sign Up'}

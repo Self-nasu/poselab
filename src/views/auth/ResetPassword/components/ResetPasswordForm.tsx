@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import Button from '@/components/ui/Button'
+import { Button } from '@/components/ui/Button'
 import { FormItem, Form } from '@/components/ui/Form'
 import PasswordInput from '@/components/shared/PasswordInput'
 import { apiResetPassword } from '@/services/AuthService'
@@ -83,7 +83,6 @@ const ResetPasswordForm = (props: ResetPasswordFormProps) => {
                             control={control}
                             render={({ field }) => (
                                 <PasswordInput
-                                    autoComplete="off"
                                     placeholder="••••••••••••"
                                     {...field}
                                 />
@@ -100,7 +99,6 @@ const ResetPasswordForm = (props: ResetPasswordFormProps) => {
                             control={control}
                             render={({ field }) => (
                                 <PasswordInput
-                                    autoComplete="off"
                                     placeholder="Confirm Password"
                                     {...field}
                                 />
@@ -108,9 +106,7 @@ const ResetPasswordForm = (props: ResetPasswordFormProps) => {
                         />
                     </FormItem>
                     <Button
-                        block
-                        loading={isSubmitting}
-                        variant="solid"
+                        variant="default"
                         type="submit"
                     >
                         {isSubmitting ? 'Submiting...' : 'Submit'}

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Alert from '@/components/ui/Alert'
-import Button from '@/components/ui/Button'
+import {Button} from '@/components/ui/Button'
 import ActionLink from '@/components/shared/ActionLink'
 import ForgotPasswordForm from './components/ForgotPasswordForm'
 import useTimeOutMessage from '@/utils/hooks/useTimeOutMessage'
@@ -53,8 +53,7 @@ export const ForgotPasswordBase = ({
                 setEmailSent={setEmailSent}
             >
                 <Button
-                    block
-                    variant="solid"
+                    variant="default"
                     type="button"
                     onClick={handleContinue}
                 >

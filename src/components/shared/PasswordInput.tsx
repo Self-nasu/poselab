@@ -1,45 +1,48 @@
-import { useState } from 'react'
-import { Input, InputProps } from '@/components/ui/Input'
-import { HiOutlineEyeOff, HiOutlineEye } from 'react-icons/hi'
-import type { MouseEvent, Ref } from 'react'
+import { useState, forwardRef, MouseEvent } from "react";
+import { Input } from "@/components/ui/Input";
+import { HiOutlineEyeOff, HiOutlineEye } from "react-icons/hi";
 
-interface PasswordInputProps extends InputProps {
-    onVisibleChange?: (visible: boolean) => void
-    ref?: Ref<HTMLInputElement>
+interface PasswordInputProps {
+  value?: string;
+  onChange?: (value: string) => void;
+  placeholder?: string;
+  onVisibleChange?: (visible: boolean) => void;
 }
 
-const PasswordInput = (props: PasswordInputProps) => {
-    const { onVisibleChange, ref, ...rest } = props
+const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
+  ({ value, onChange, placeholder, onVisibleChange }, ref) => {
+    const [isVisible, setIsVisible] = useState(false);
 
-    const [pwInputType, setPwInputType] = useState('password')
-
-    const onPasswordVisibleClick = (e: MouseEvent<HTMLSpanElement>) => {
-        e.preventDefault()
-        const nextValue = pwInputType === 'password' ? 'text' : 'password'
-        setPwInputType(nextValue)
-        onVisibleChange?.(nextValue === 'text')
-    }
+    const toggleVisibility = (e: MouseEvent<HTMLSpanElement>) => {
+      e.preventDefault();
+      setIsVisible((prev) => {
+        const next = !prev;
+        onVisibleChange?.(next);
+        return next;
+      });
+    };
 
     return (
-        <Input
-            {...rest}
-            ref={ref}
-            type={pwInputType}
-            suffix={
-                <span
-                    className="cursor-pointer select-none text-xl"
-                    role="button"
-                    onClick={onPasswordVisibleClick}
-                >
-                    {pwInputType === 'password' ? (
-                        <HiOutlineEyeOff />
-                    ) : (
-                        <HiOutlineEye />
-                    )}
-                </span>
-            }
-        />
-    )
-}
+      <Input
+        ref={ref}
+        type={isVisible ? "text" : "password"}
+        value={value}
+        placeholder={placeholder}
+        className="pr-10"
+        suffix={
+          <span
+            className="cursor-pointer select-none text-xl"
+            onClick={toggleVisibility}
+          >
+            {isVisible ? <HiOutlineEye /> : <HiOutlineEyeOff />}
+          </span>
+        }
+        onChange={(e) => onChange?.(e.target.value)}
+      />
+    );
+  }
+);
 
-export default PasswordInput
+PasswordInput.displayName = "PasswordInput";
+
+export default PasswordInput;
