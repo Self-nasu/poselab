@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import Input from '@/components/ui/Input'
-import Button from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { Button } from '@/components/ui/Button'
 import { FormItem, Form } from '@/components/ui/Form'
 import PasswordInput from '@/components/shared/PasswordInput'
 import classNames from '@/utils/classNames'

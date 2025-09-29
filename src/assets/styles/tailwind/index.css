@@ -1,122 +1,116 @@
 @import 'tailwindcss';
 
+@plugin 'tailwindcss-animate';
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
 @config '../../../../tailwind.config.cjs';
 
 @layer theme {
-	:root {
-		--neutral: #ffffff;
-		--primary: #e96a32;
-		--primary-text: #212529;
-		--primary-deep: #F13B09;
-		--primary-mild: #e9672fbf;
-		--primary-subtle: #2a85ff1a;
-		--secondary: #17196d;
-		--secondary-deep: #0a0c63;
-		--error: #ff6a55;
-		--error-subtle: #ff6a551a;
-		--success: #10b981;
-		--success-subtle: #05eb7624;
-		--info: #2a85ff;
-		--info-subtle: #2a85ff1a;
-		--warning: #f59e0b;
-		--warning-subtle: #ffd40045;
-		--gray-50: #fafafa;
-		--gray-100: #f5f5f5;
-		--gray-200: #e5e5e5;
-		--gray-300: #d4d4d4;
-		--gray-400: #a3a3a3;
-		--gray-500: #737373;
-		--gray-600: #525252;
-		--gray-700: #404040;
-		--gray-800: #262626;
-		--gray-900: #171717;
-		--gray-950: #0a0a0a;
-	}
+  :root {
+    --neutral: #ffffff;
+    --primary: #113e21;         /* strong vibrant green */
+    --primary-text: #121212;
+    --primary-deep: #073417;
+    --primary-mild: #1ED760BF;
+    --primary-subtle: #1ED7601A;
 
-	.dark {
-		--neutral: #ffffff;
-		--primary: #2a85ff;
-		--primary-text: #ffffff;
-		--primary-deep: #0069f6;
-		--primary-mild: #4996ff;
-		--primary-subtle: #2a85ff1a;
-		--error: #ff6a55;
-		--error-subtle: #ff6a551a; 
-		--success: #10b981;
-		--success-subtle: #05eb7624;
-		--info: #2a85ff;
-		--info-subtle: #2a85ff1a;
-		--warning: #f59e0b;
-		--warning-subtle: #ffd40045;
-		--gray-50: #fafafa;
-		--gray-100: #f5f5f5;
-		--gray-200: #e5e5e5;
-		--gray-300: #d4d4d4;
-		--gray-400: #a3a3a3;
-		--gray-500: #737373;
-		--gray-600: #525252;
-		--gray-700: #404040;
-		--gray-800: #262626;
-		--gray-900: #171717;
-		--gray-950: #0a0a0a;
-	}
+    --secondary: #3B82F6;       /* vivid blue */
+    --secondary-deep: #2563EB;
+
+    --error: #EF4444;           /* bold red */
+    --error-subtle: #F871711A;
+
+    --success: #10B981;         /* solid green */
+    --success-subtle: #6EE7B71A;
+
+    --info: #0EA5E9;            /* bright info blue */
+    --info-subtle: #38BDF81A;
+
+    --warning: #FBBF24;         /* strong yellow */
+    --warning-subtle: #FCD34D45;
+
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-300: #D1D5DB;
+    --gray-400: #9CA3AF;
+    --gray-500: #6B7280;
+    --gray-600: #4B5563;
+    --gray-700: #374151;
+    --gray-800: #1F2937;
+    --gray-900: #111827;
+    --gray-950: #030712;
+  }
+
+  .dark {
+    --neutral: #ffffff;
+    --primary: #22C55E;         /* dark mode primary green */
+    --primary-text: #ffffff;
+    --primary-deep: #16A34A;
+    --primary-mild: #22C55EBF;
+    --primary-subtle: #22C55E1A;
+
+    --secondary: #3B82F6;       /* same vivid blue */
+    --secondary-deep: #1D4ED8;
+
+    --error: #EF4444;
+    --error-subtle: #F871711A;
+
+    --success: #10B981;
+    --success-subtle: #6EE7B71A;
+
+    --info: #0EA5E9;
+    --info-subtle: #38BDF81A;
+
+    --warning: #FBBF24;
+    --warning-subtle: #FCD34D45;
+
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-300: #D1D5DB;
+    --gray-400: #9CA3AF;
+    --gray-500: #6B7280;
+    --gray-600: #4B5563;
+    --gray-700: #374151;
+    --gray-800: #1F2937;
+    --gray-900: #111827;
+    --gray-950: #030712;
+  }
 }
 
 @layer base {
-	*,
-	::after,
-	::before,
-	::backdrop,
-	::file-selector-button {
-		border-color: var(--color-gray-200, currentColor);
-	}
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
 
-	button, [role=button] {
-		cursor: pointer;
-	}
+  button, [role=button] {
+    cursor: pointer;
+  }
 
-	body {
-		@apply text-gray-500 dark:text-gray-400 text-sm bg-gray-100 dark:bg-gray-950 leading-normal font-medium;
-		-webkit-font-smoothing: antialiased;
-	}
+  body {
+    @apply text-gray-500 dark:text-gray-400 text-sm bg-gray-100 dark:bg-gray-950 leading-normal font-medium;
+    -webkit-font-smoothing: antialiased;
+  }
 
-	h1,
-	.h1 {
-		@apply text-4xl font-bold text-gray-900 dark:text-gray-100;
-	}
+  h1, .h1 { @apply text-4xl font-bold text-gray-900 dark:text-gray-100; }
+  h2, .h2 { @apply text-3xl font-bold text-gray-900 dark:text-gray-100; }
+  h3, .h3 { @apply text-2xl font-bold text-gray-900 dark:text-gray-100; }
+  h4, .h4 { @apply text-xl font-bold text-gray-900 dark:text-gray-100; }
+  h5, .h5 { @apply text-lg font-bold text-gray-900 dark:text-gray-100; }
+  h6, .h6 { @apply text-base font-semibold text-gray-900 dark:text-gray-100; }
 
-	h2,
-	.h2 {
-		@apply text-3xl font-bold text-gray-900 dark:text-gray-100;
-	}
-
-	h3,
-	.h3 {
-		@apply text-2xl font-bold text-gray-900 dark:text-gray-100;
-	}
-
-	h4,
-	.h4 {
-		@apply text-xl font-bold text-gray-900 dark:text-gray-100;
-	}
-
-	h5,
-	.h5 {
-		@apply text-lg font-bold text-gray-900 dark:text-gray-100;
-	}
-
-	h6,
-	.h6 {
-		@apply text-base font-semibold text-gray-900 dark:text-gray-100;
-	}
-
-	hr {
-		@apply border-gray-200 dark:border-gray-600;
-	}
+  hr { @apply border-gray-200 dark:border-gray-600; }
 }
 
 @layer components {
-	.heading-text {
-		@apply text-gray-900 dark:text-gray-100;
-	}
+  .heading-text {
+    @apply text-gray-900 dark:text-gray-100;
+  }
 }

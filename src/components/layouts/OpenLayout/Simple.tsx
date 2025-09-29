@@ -3,7 +3,7 @@ import type { ReactNode, ReactElement } from 'react'
 import type { CommonProps } from '@/@types/common'
 import Logo from '@/components/template/Logo'
 import { Link } from 'react-router-dom'
-import { Button } from '@/components/ui'
+import { Button } from '@/components/ui/Button'
 
 interface SimpleProps extends CommonProps {
     content?: ReactNode
@@ -20,24 +20,15 @@ const Simple = ({ children, content, ...rest }: SimpleProps) => {
                         <Logo className="hidden lg:block" imgClass="max-h-10" />
                     </Link>
                     <div className='flex items-center gap-10'>
-                        <Link to="/services"> <p className='text-primary-text cusror-pointer font-normal text-base'>Services</p></Link>
-                        <Link to="/products"> <p className='text-primary-text cusror-pointer font-normal text-base'>Products</p></Link>
                         <Link to="/about"> <p className='text-primary-text cusror-pointer font-normal text-base'>About</p></Link>
                         <Link to="/join-us"> <p className='text-primary-text cusror-pointer font-normal text-base'>Join us</p></Link>
+                        <Link to="/services"> <p className='text-primary-text cusror-pointer font-normal text-base'>Services</p></Link>
                         <div className='flex items-center gap-6'>
-
-                        <Link to="/contact-us">
-                        <Button
-                            variant="solid"
-                            size='sm'
-                        >Let&#39;s talk</Button>
-                        </Link>
 
                         <Link to="/home">
                         <Button
                             variant="default"
-                            size='sm'
-                        >Login</Button>
+                        >SignUp / Login</Button>
                         </Link>
                         </div>
 
@@ -45,7 +36,7 @@ const Simple = ({ children, content, ...rest }: SimpleProps) => {
                 </div>
             </header>
             <main>
-                <div className='mx-auto px-4 py-4'>
+                <div>
 
                 {content}
                 {

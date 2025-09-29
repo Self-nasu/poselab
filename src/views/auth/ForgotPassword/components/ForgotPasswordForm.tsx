@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import Input from '@/components/ui/Input'
-import Button from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { Button } from '@/components/ui/Button'
 import { FormItem, Form } from '@/components/ui/Form'
 import { apiForgotPassword } from '@/services/AuthService'
 import { useForm, Controller } from 'react-hook-form'
