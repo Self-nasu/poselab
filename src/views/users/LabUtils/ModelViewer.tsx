@@ -289,11 +289,11 @@ export const ModelViewer = ({ modelUrl, onNewModel }: ModelViewerProps) => {
   };
   
   return (
-    <div className="min-h-screen bg-gradient-dark flex">
+    <div className="min-h-screen flex">
       {/* 3D Viewer */}
       <div className="flex-1 relative">
         {/* Header */}
-        <div className="absolute top-0 left-0 right-0 z-10 p-4 bg-gradient-to-b from-background/80 to-transparent">
+        <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-background/80 to-transparent">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 bg-gradient-gaming rounded-lg flex items-center justify-center shadow-glow">
@@ -359,7 +359,6 @@ export const ModelViewer = ({ modelUrl, onNewModel }: ModelViewerProps) => {
             setCamera(threeCamera);
           }}
         >
-          {/* eslint-disable-next-line */}
           <ambientLight intensity={0.5} />
           <LightRenderer lights={lights} />
           

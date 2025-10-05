@@ -1,4 +1,4 @@
-import Alert from '@/components/ui/Alert'
+import {Alert} from '@/components/ui/alert'
 import SignInForm from './components/SignInForm'
 import OauthSignIn from './components/OauthSignIn'
 import ActionLink from '@/components/shared/ActionLink'
@@ -30,7 +30,7 @@ export const SignInBase = ({
                 </p>
             </div>
             {message && (
-                <Alert showIcon className="mb-4" type="danger">
+                <Alert >
                     <span className="break-all">{message}</span>
                 </Alert>
             )}

@@ -1,6 +1,5 @@
 import { useRef, useEffect } from "react";
-import { useFrame } from "@react-three/fiber";
-import { Mesh, Group, BoxGeometry, MeshLambertMaterial, CanvasTexture, MeshPhongMaterial } from "three";
+import {  Group, BoxGeometry, CanvasTexture, MeshPhongMaterial } from "three";
 
 interface MinecraftCharacterProps {
   skinImage: HTMLImageElement;
@@ -47,7 +46,7 @@ export const MinecraftCharacter = ({ skinImage, pose }: MinecraftCharacterProps)
         (pose.body.z * Math.PI) / 180
       );
     }
-    
+
     // Left arm joints
     if (leftUpperArmRef.current) {
       leftUpperArmRef.current.rotation.set(
@@ -63,7 +62,7 @@ export const MinecraftCharacter = ({ skinImage, pose }: MinecraftCharacterProps)
         (pose.leftLowerArm.z * Math.PI) / 180
       );
     }
-    
+
     // Right arm joints
     if (rightUpperArmRef.current) {
       rightUpperArmRef.current.rotation.set(
@@ -79,7 +78,7 @@ export const MinecraftCharacter = ({ skinImage, pose }: MinecraftCharacterProps)
         (pose.rightLowerArm.z * Math.PI) / 180
       );
     }
-    
+
     // Left leg joints
     if (leftUpperLegRef.current) {
       leftUpperLegRef.current.rotation.set(
@@ -95,7 +94,7 @@ export const MinecraftCharacter = ({ skinImage, pose }: MinecraftCharacterProps)
         (pose.leftLowerLeg.z * Math.PI) / 180
       );
     }
-    
+
     // Right leg joints
     if (rightUpperLegRef.current) {
       rightUpperLegRef.current.rotation.set(
@@ -128,17 +127,18 @@ export const MinecraftCharacter = ({ skinImage, pose }: MinecraftCharacterProps)
       canvas.width = w * 4; // Scale up for better quality
       canvas.height = h * 4;
       const ctx = canvas.getContext('2d')!;
-      
+
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(skinImage, x, y, w, h, 0, 0, w * 4, h * 4);
-      
+
       const texture = new CanvasTexture(canvas);
-      texture.flipY = false;
+      texture.flipY = true;
       texture.generateMipmaps = false;
       texture.magFilter = 1003; // NearestFilter for pixelated look
       texture.minFilter = 1003;
-      
-      return new MeshPhongMaterial({ 
+      texture.needsUpdate = true;
+
+      return new MeshPhongMaterial({
         map: texture,
         transparent: true,
         alphaTest: 0.1
@@ -162,118 +162,203 @@ export const MinecraftCharacter = ({ skinImage, pose }: MinecraftCharacterProps)
   const upperLegOverlayGeometry = new BoxGeometry(4.5, 6.5, 4.5);
   const lowerLegOverlayGeometry = new BoxGeometry(4.5, 6.5, 4.5);
 
-  // UV mappings for each body part (based on standard Minecraft skin layout)
+  // HEAD (base)
   const headMaterials = createCubeMaterials({
-    right: [0, 8, 8, 8],    // Right side
-    left: [16, 8, 8, 8],    // Left side  
-    top: [8, 0, 8, 8],      // Top
-    bottom: [16, 0, 8, 8],  // Bottom
-    front: [8, 8, 8, 8],    // Front
-    back: [24, 8, 8, 8]     // Back
+    right: [0, 8, 8, 8],
+    left: [16, 8, 8, 8],
+    top: [8, 0, 8, 8],
+    bottom: [16, 0, 8, 8],
+    front: [8, 8, 8, 8],
+    back: [24, 8, 8, 8]
   });
 
+  // TORSO / BODY (base)
   const bodyMaterials = createCubeMaterials({
-    right: [16, 20, 4, 12],  // Right side
-    left: [28, 20, 4, 12],   // Left side
-    top: [20, 16, 8, 4],     // Top
-    bottom: [28, 16, 8, 4],  // Bottom
-    front: [20, 20, 8, 12],  // Front
-    back: [32, 20, 8, 12]    // Back
+    right: [16, 20, 4, 12],
+    left: [28, 20, 4, 12],
+    top: [20, 16, 8, 4],
+    bottom: [28, 16, 8, 4],
+    front: [20, 20, 8, 12],
+    back: [32, 20, 8, 12]
   });
 
-  const leftArmMaterials = createCubeMaterials({
-    right: [32, 52, 4, 12],  // Right side
-    left: [40, 52, 4, 12],   // Left side
-    top: [36, 48, 4, 4],     // Top
-    bottom: [40, 48, 4, 4],  // Bottom
-    front: [36, 52, 4, 12],  // Front
-    back: [44, 52, 4, 12]    // Back
-  });
-
+  // RIGHT ARM (base)
   const rightArmMaterials = createCubeMaterials({
-    right: [40, 20, 4, 12],  // Right side
-    left: [48, 20, 4, 12],   // Left side
-    top: [44, 16, 4, 4],     // Top
-    bottom: [48, 16, 4, 4],  // Bottom
-    front: [44, 20, 4, 12],  // Front
-    back: [52, 20, 4, 12]    // Back
+    right: [40, 26, 4, 6],
+    left: [48, 26, 4, 6],
+    top: [44, 16, 4, 4],
+    bottom: [48, 16, 4, 4],
+    front: [44, 26, 4, 6],
+    back: [52, 26, 4, 6]
   });
 
-  const leftLegMaterials = createCubeMaterials({
-    right: [16, 52, 4, 12],  // Right side
-    left: [24, 52, 4, 12],   // Left side
-    top: [20, 48, 4, 4],     // Top
-    bottom: [24, 48, 4, 4],  // Bottom
-    front: [20, 52, 4, 12],  // Front
-    back: [28, 52, 4, 12]    // Back
+  const rightArmTopMaterials = createCubeMaterials({
+    right: [40, 20, 4, 6],
+    left: [48, 20, 4, 6],
+    top: [44, 16, 4, 4],
+    bottom: [44, 16, 4, 4],
+    front: [44, 20, 4, 6],
+    back: [52, 20, 4, 6]
+  })
+
+  // LEFT ARM (1.8+ separate region)
+  const leftArmMaterials = createCubeMaterials({
+    right: [32, 58, 4, 6],
+    left: [40, 58, 4, 6],
+    top: [36, 48, 4, 4],
+    bottom: [40, 48, 4, 4],
+    front: [36, 58, 4, 6],
+    back: [44, 58, 4, 6]
   });
 
+  const leftArmTopMaterials = createCubeMaterials({
+    right: [32, 52, 4, 6],
+    left: [40, 52, 4, 6],
+    top: [36, 48, 4, 4],
+    bottom: [36, 48, 4, 4],
+    front: [36, 52, 4, 6],
+    back: [44, 52, 4, 6]
+  });
+
+  // RIGHT LEG (base)
   const rightLegMaterials = createCubeMaterials({
-    right: [0, 20, 4, 12],   // Right side
-    left: [8, 20, 4, 12],    // Left side
-    top: [4, 16, 4, 4],      // Top
-    bottom: [8, 16, 4, 4],   // Bottom
-    front: [4, 20, 4, 12],   // Front
-    back: [12, 20, 4, 12]    // Back
+    right: [0, 26, 4, 6],
+    left: [8, 26, 4, 6],
+    top: [4, 16, 4, 4],
+    bottom: [8, 16, 4, 4],
+    front: [4, 26, 4, 6],
+    back: [12, 26, 4, 6]
   });
 
-  // Overlay materials (second layer from skin texture)
+  const rightLegTopMaterials = createCubeMaterials({
+    right: [0, 20, 4, 6],
+    left: [8, 20, 4, 6],
+    top: [4, 16, 4, 4],
+    bottom: [4, 16, 4, 4],
+    front: [4, 20, 4, 6],
+    back: [12, 20, 4, 6]
+  })
+
+  // LEFT LEG (1.8+ separate region)
+  const leftLegMaterials = createCubeMaterials({
+    right: [16, 58, 4, 6],
+    left: [24, 58, 4, 6],
+    top: [20, 48, 4, 4],
+    bottom: [24, 48, 4, 4],
+    front: [20, 58, 4, 6],
+    back: [28, 58, 4, 6]
+  });
+
+
+  const leftLegTopMaterials = createCubeMaterials({
+    right: [16, 52, 4, 6],
+    left: [24, 52, 4, 6],
+    top: [20, 48, 4, 4],
+    bottom: [20, 48, 4, 4],
+    front: [20, 52, 4, 6],
+    back: [28, 52, 4, 6]
+  })
+
+  // --- OVERLAY (second layer) ---
+  // head overlay
   const headOverlayMaterials = createCubeMaterials({
-    right: [32, 8, 8, 8],    // Right side
-    left: [48, 8, 8, 8],     // Left side  
-    top: [40, 0, 8, 8],      // Top
-    bottom: [48, 0, 8, 8],   // Bottom
-    front: [40, 8, 8, 8],    // Front
-    back: [56, 8, 8, 8]      // Back
+    right: [48, 8, 8, 8],
+    left: [32, 8, 8, 8],
+    top: [40, 0, 8, 8],
+    bottom: [48, 0, 8, 8],
+    front: [40, 8, 8, 8],
+    back: [56, 8, 8, 8]
   });
 
+  // torso overlay
   const bodyOverlayMaterials = createCubeMaterials({
-    right: [16, 36, 4, 12],  // Right side
-    left: [28, 36, 4, 12],   // Left side
-    top: [20, 32, 8, 4],     // Top
-    bottom: [28, 32, 8, 4],  // Bottom
-    front: [20, 36, 8, 12],  // Front
-    back: [32, 36, 8, 12]    // Back
+    right: [16, 36, 4, 12],
+    left: [28, 36, 4, 12],
+    top: [20, 32, 8, 4],
+    bottom: [28, 32, 8, 4],
+    front: [20, 36, 8, 12],
+    back: [32, 36, 8, 12]
   });
 
-  const leftArmOverlayMaterials = createCubeMaterials({
-    right: [48, 52, 4, 12],  // Right side
-    left: [56, 52, 4, 12],   // Left side
-    top: [52, 48, 4, 4],     // Top
-    bottom: [56, 48, 4, 4],  // Bottom
-    front: [52, 52, 4, 12],  // Front
-    back: [60, 52, 4, 12]    // Back
-  });
-
+  // right arm overlay
   const rightArmOverlayMaterials = createCubeMaterials({
-    right: [40, 36, 4, 12],  // Right side
-    left: [48, 36, 4, 12],   // Left side
-    top: [44, 32, 4, 4],     // Top
-    bottom: [48, 32, 4, 4],  // Bottom
-    front: [44, 36, 4, 12],  // Front
-    back: [52, 36, 4, 12]    // Back
+    right: [40, 42, 4, 6],
+    left: [48, 42, 4, 6],
+    top: [44, 32, 4, 4],
+    bottom: [48, 32, 4, 4],
+    front: [44, 42, 4, 6],
+    back: [52, 42, 4, 6]
   });
 
-  const leftLegOverlayMaterials = createCubeMaterials({
-    right: [0, 52, 4, 12],   // Right side
-    left: [8, 52, 4, 12],    // Left side
-    top: [4, 48, 4, 4],      // Top
-    bottom: [8, 48, 4, 4],   // Bottom
-    front: [4, 52, 4, 12],   // Front
-    back: [12, 52, 4, 12]    // Back
+  const rightArmOverlayTopMaterials = createCubeMaterials({
+    right: [40, 36, 4, 6],
+    left: [48, 36, 4, 6],
+    top: [44, 32, 4, 4],
+    bottom: [44, 32, 4, 4],
+    front: [44, 36, 4, 6],
+    back: [52, 36, 4, 6]
   });
 
+  // left arm overlay
+  const leftArmOverlayMaterials = createCubeMaterials({
+    right: [48, 58, 4, 6],
+    left: [56, 58, 4, 6],
+    top: [52, 48, 4, 4],
+    bottom: [56, 48, 4, 4],
+    front: [52, 58, 4, 6],
+    back: [60, 58, 4, 6]
+  });
+
+  const leftArmOverlayTopMaterials = createCubeMaterials({
+    right: [48, 52, 4, 6],
+    left: [56, 52, 4, 6],
+    top: [52, 48, 4, 4],
+    bottom: [52, 48, 4, 4],
+    front: [52, 52, 4, 6],
+    back: [60, 52, 4, 6]
+  })
+
+  // right leg overlay
   const rightLegOverlayMaterials = createCubeMaterials({
-    right: [0, 36, 4, 12],   // Right side
-    left: [8, 36, 4, 12],    // Left side
-    top: [4, 32, 4, 4],      // Top
-    bottom: [8, 32, 4, 4],   // Bottom
-    front: [4, 36, 4, 12],   // Front
-    back: [12, 36, 4, 12]    // Back
+    right: [0, 42, 4, 6],
+    left: [8, 42, 4, 6],
+    top: [4, 32, 4, 4],
+    bottom: [8, 32, 4, 4],
+    front: [4, 42, 4, 6],
+    back: [12, 42, 4, 6]
   });
+
+  const rightLegOverlayTopMaterials = createCubeMaterials({
+    right: [0, 36, 4, 6],
+    left: [8, 36, 4, 6],
+    top: [4, 32, 4, 4],
+    bottom: [4, 32, 4, 4],
+    front: [4, 36, 4, 6],
+    back: [12, 36, 4, 6]
+  });
+
+  // left leg overlay
+  const leftLegOverlayMaterials = createCubeMaterials({
+    right: [0, 58, 4, 6],
+    left: [8, 58, 4, 6],
+    top: [4, 48, 4, 4],
+    bottom: [8, 48, 4, 4],
+    front: [4, 58, 4, 6],
+    back: [12, 58, 4, 6]
+  });
+
+  const leftLegOverlayTopMaterials = createCubeMaterials({
+    right: [0, 52, 4, 6],
+    left: [8, 52, 4, 6],
+    top: [4, 48, 4, 4],
+    bottom: [4, 48, 4, 4],
+    front: [4, 52, 4, 6],
+    back: [12, 52, 4, 6]
+  });
+
 
   return (
-    <group ref={groupRef} position={[0, 0, 0]} scale={0.1}>
+    <group ref={groupRef} position={[0, -2, 0]} scale={0.12}>
       {/* Head - pivot at bottom center */}
       <group ref={headRef} position={[0, 24, 0]}>
         <mesh
@@ -287,7 +372,7 @@ export const MinecraftCharacter = ({ skinImage, pose }: MinecraftCharacterProps)
           material={headOverlayMaterials}
         />
       </group>
-      
+
       {/* Body - pivot at top center */}
       <group ref={bodyRef} position={[0, 24, 0]}>
         <mesh
@@ -301,21 +386,21 @@ export const MinecraftCharacter = ({ skinImage, pose }: MinecraftCharacterProps)
           material={bodyOverlayMaterials}
         />
       </group>
-      
+
       {/* Left Arm - Complete arm with elbow joint */}
       <group ref={leftUpperArmRef} position={[-6, 24, 0]}>
         {/* Upper arm */}
         <mesh
           position={[0, -3, 0]}
           geometry={upperArmGeometry}
-          material={leftArmMaterials}
+          material={leftArmTopMaterials}
         />
         <mesh
           position={[0, -3, 0]}
           geometry={upperArmOverlayGeometry}
-          material={leftArmOverlayMaterials}
+          material={leftArmOverlayTopMaterials}
         />
-        
+
         {/* Lower arm group - pivot at elbow */}
         <group ref={leftLowerArmRef} position={[0, -6, 0]}>
           <mesh
@@ -330,21 +415,21 @@ export const MinecraftCharacter = ({ skinImage, pose }: MinecraftCharacterProps)
           />
         </group>
       </group>
-      
+
       {/* Right Arm - Complete arm with elbow joint */}
       <group ref={rightUpperArmRef} position={[6, 24, 0]}>
         {/* Upper arm */}
         <mesh
           position={[0, -3, 0]}
           geometry={upperArmGeometry}
-          material={rightArmMaterials}
+          material={rightArmTopMaterials}
         />
         <mesh
           position={[0, -3, 0]}
           geometry={upperArmOverlayGeometry}
-          material={rightArmOverlayMaterials}
+          material={rightArmOverlayTopMaterials}
         />
-        
+
         {/* Lower arm group - pivot at elbow */}
         <group ref={rightLowerArmRef} position={[0, -6, 0]}>
           <mesh
@@ -359,21 +444,21 @@ export const MinecraftCharacter = ({ skinImage, pose }: MinecraftCharacterProps)
           />
         </group>
       </group>
-      
+
       {/* Left Leg - Complete leg with knee joint */}
       <group ref={leftUpperLegRef} position={[-2, 12, 0]}>
         {/* Upper leg */}
         <mesh
           position={[0, -3, 0]}
           geometry={upperLegGeometry}
-          material={leftLegMaterials}
+          material={leftLegTopMaterials}
         />
         <mesh
           position={[0, -3, 0]}
           geometry={upperLegOverlayGeometry}
-          material={leftLegOverlayMaterials}
+          material={leftLegOverlayTopMaterials}
         />
-        
+
         {/* Lower leg group - pivot at knee */}
         <group ref={leftLowerLegRef} position={[0, -6, 0]}>
           <mesh
@@ -388,21 +473,21 @@ export const MinecraftCharacter = ({ skinImage, pose }: MinecraftCharacterProps)
           />
         </group>
       </group>
-      
+
       {/* Right Leg - Complete leg with knee joint */}
       <group ref={rightUpperLegRef} position={[2, 12, 0]}>
         {/* Upper leg */}
         <mesh
           position={[0, -3, 0]}
           geometry={upperLegGeometry}
-          material={rightLegMaterials}
+          material={rightLegTopMaterials}
         />
         <mesh
           position={[0, -3, 0]}
           geometry={upperLegOverlayGeometry}
-          material={rightLegOverlayMaterials}
+          material={rightLegOverlayTopMaterials}
         />
-        
+
         {/* Lower leg group - pivot at knee */}
         <group ref={rightLowerLegRef} position={[0, -6, 0]}>
           <mesh

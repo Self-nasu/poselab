@@ -31,7 +31,7 @@ interface RenderDialogProps {
 const PRESET_SIZES = [
   { label: "HD (1920x1080)", value: "1920x1080" },
   { label: "2K (2560x1440)", value: "2560x1440" },
-  { label: "4K (3840x2160)", value: "3840x2160" },
+  // { label: "4K (3840x2160)", value: "3840x2160" },
   { label: "Square HD (1080x1080)", value: "1080x1080" },
   { label: "Custom", value: "custom" },
 ];
@@ -114,7 +114,7 @@ export const RenderDialog = ({ open, onOpenChange, onRender }: RenderDialogProps
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[700px]">
+      <DialogContent className=" bg-white sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>High Quality Render</DialogTitle>
           <DialogDescription>
@@ -149,13 +149,13 @@ export const RenderDialog = ({ open, onOpenChange, onRender }: RenderDialogProps
           <>
             <div className="space-y-6 py-4">
           {/* Size Preset */}
-          <div className="space-y-2">
+          <div className="space-y-2 bg-white">
             <Label>Resolution</Label>
             <Select value={sizePreset} onValueChange={setSizePreset}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 {PRESET_SIZES.map((size) => (
                   <SelectItem key={size.value} value={size.value}>
                     {size.label}
@@ -200,10 +200,10 @@ export const RenderDialog = ({ open, onOpenChange, onRender }: RenderDialogProps
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 <SelectItem value="1">Standard (1x)</SelectItem>
                 <SelectItem value="2">High (2x)</SelectItem>
-                <SelectItem value="4">Ultra (4x)</SelectItem>
+                {/* <SelectItem value="4">Ultra (4x)</SelectItem> */}
               </SelectContent>
             </Select>
           </div>
@@ -215,6 +215,7 @@ export const RenderDialog = ({ open, onOpenChange, onRender }: RenderDialogProps
             </Label>
             <Switch
               id="transparent"
+              className="mr-2 p-1 border border-gray-400 "
               checked={transparentBackground}
               onCheckedChange={setTransparentBackground}
             />

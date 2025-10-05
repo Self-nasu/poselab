@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Upload, Image as ImageIcon, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/card";
@@ -49,7 +50,7 @@ export const SkinUpload = ({ onSkinUpload }: SkinUploadProps) => {
     try {
       const skinImage = await loadSkinImage(file);
       const preview = URL.createObjectURL(file);
-      
+
       setUploadedSkin({ file, image: skinImage, preview });
     } catch (error) {
       alert(error instanceof Error ? error.message : "Failed to load skin");
@@ -59,7 +60,7 @@ export const SkinUpload = ({ onSkinUpload }: SkinUploadProps) => {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
-    
+
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
       handleFileUpload(files[0]);
@@ -80,87 +81,62 @@ export const SkinUpload = ({ onSkinUpload }: SkinUploadProps) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-dark p-4">
-      <Card className="w-full max-w-md p-8 shadow-elevated">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-gaming rounded-lg flex items-center justify-center mx-auto mb-4 shadow-glow">
-            <ImageIcon className="w-8 h-8 text-primary-foreground" />
-          </div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">
-            Minecraft Skin Viewer
-          </h1>
-          <p className="text-muted-foreground">
-            Upload your 64x64 Minecraft skin PNG to view it in 3D
-          </p>
+    <Card className="w-full p-4 shadow-lg rounded-xl bg-gradient-to-br from-gray-800 via-gray-900 to-gray-950">
+  <div
+    className={`
+      border-2 border-dashed rounded-xl p-6 text-center transition-all cursor-pointer
+      ${isDragOver
+        ? "border-primary bg-primary/10 shadow-lg"
+        : "border-border hover:border-primary/50 hover:bg-primary/5"
+      }
+    `}
+    onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+    onDragLeave={() => setIsDragOver(false)}
+    onDrop={handleDrop}
+    onClick={() => fileInputRef.current?.click()}
+  >
+    {uploadedSkin ? (
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-24 h-24 border border-border rounded-lg overflow-hidden bg-gray-900">
+          <img
+            src={uploadedSkin.preview}
+            alt="Uploaded skin"
+            className="w-full h-full object-contain pixel-art"
+            style={{ imageRendering: 'pixelated' }}
+          />
         </div>
-
-        <div
-          className={`
-            border-2 border-dashed rounded-lg p-8 text-center transition-smooth cursor-pointer
-            ${isDragOver 
-              ? "border-primary bg-primary/5 shadow-glow" 
-              : "border-border hover:border-primary/50 hover:bg-primary/5"
-            }
-          `}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setIsDragOver(true);
-          }}
-          onDragLeave={() => setIsDragOver(false)}
-          onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
-        >
-          {uploadedSkin ? (
-            <div className="space-y-4">
-              <div className="w-20 h-20 mx-auto border border-border rounded-lg overflow-hidden bg-card">
-                <img
-                  src={uploadedSkin.preview}
-                  alt="Uploaded skin"
-                  className="w-full h-full object-contain pixel-art"
-                  style={{ imageRendering: 'pixelated' }}
-                />
-              </div>
-              <div className="flex items-center justify-center gap-2 text-primary">
-                <CheckCircle className="w-5 h-5" />
-                <span className="font-medium">{uploadedSkin.file.name}</span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                64x64 PNG • Ready to load
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <Upload className="w-12 h-12 text-muted-foreground mx-auto" />
-              <div>
-                <p className="text-foreground font-medium mb-1">
-                  Drop your skin here or click to browse
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  PNG files only • 64x64 pixels
-                </p>
-              </div>
-            </div>
-          )}
+        <div className="flex items-center gap-2 text-primary font-semibold">
+          <CheckCircle className="w-5 h-5" /> {uploadedSkin.file.name}
         </div>
+        <p className="text-xs text-muted-foreground">64x64 PNG • Ready</p>
+      </div>
+    ) : (
+      <div className="flex flex-col items-center gap-2">
+        <Upload className="w-10 h-10 text-muted-foreground" />
+        <p className="text-sm text-foreground font-medium">Drop skin or click to upload</p>
+        <p className="text-xs text-muted-foreground">PNG • 64x64 pixels</p>
+      </div>
+    )}
+  </div>
 
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".png"
-          className="hidden"
-          onChange={handleFileSelect}
-        />
+  <input
+    ref={fileInputRef}
+    type="file"
+    accept=".png"
+    className="hidden"
+    onChange={handleFileSelect}
+  />
 
-        {uploadedSkin && (
-          <Button
-          className="w-full mt-6 bg-gradient-gaming hover:shadow-glow transition-smooth"
-          size="lg"
-          onClick={handleLoadCharacter}
-          >
-            Load Character
-          </Button>
-        )}
-      </Card>
-    </div>
+  {uploadedSkin && (
+    <Button
+      className="w-full mt-4 bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white hover:shadow-xl transition-all"
+      size="sm"
+      onClick={handleLoadCharacter}
+    >
+      Load Skin
+    </Button>
+  )}
+</Card>
+
   );
 };
