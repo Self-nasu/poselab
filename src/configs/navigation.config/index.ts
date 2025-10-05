@@ -68,7 +68,7 @@ const navigationConfig: NavigationTree[] = [
         authority: [],
         subMenu: [
             {
-                key: 'account.item1',
+                key: 'account.profile',
                 path: '/profile',
                 title: 'Basic Info',
                 translateKey: 'nav.account.profile',
