@@ -19,5 +19,11 @@ export const protectedRoutes: Routes = [
         component: lazy(() => import('@/views/users/poseLab')),
         authority: [],
     },
+    {
+        key: 'ThreeDViewer',
+        path: '/3d-viewer',
+        component: lazy(() => import('@/views/users/threeDViewer')),
+        authority: [],
+    },
     
 ]

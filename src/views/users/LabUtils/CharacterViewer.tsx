@@ -8,15 +8,11 @@ import { LightRenderer } from "./LightRenderer";
 import { RenderDialog, RenderSettings } from "./RenderDialog";
 import { createHighQualityRender } from "./renderUtils";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/card";
-import { Camera, Upload, RotateCcw, Download } from "lucide-react";
+import { Camera, Upload, Download, RotateCcw, Sun, Armchair, SlidersHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import * as THREE from "three";
 
-interface CharacterViewerProps {
-  skinImage: HTMLImageElement;
-  onNewSkin: () => void;
-}
+// --- Your PRESET_POSES stays same here ---
 
 const PRESET_POSES = {
   standing: {
@@ -32,15 +28,15 @@ const PRESET_POSES = {
     body: { x: 0, y: 0, z: 0 },
   },
   walking: {
-    leftUpperArm: { x: -20, y: 0, z: 0 },
-    leftLowerArm: { x: -15, y: 0, z: 0 },
-    rightUpperArm: { x: 20, y: 0, z: 0 },
-    rightLowerArm: { x: 15, y: 0, z: 0 },
-    leftUpperLeg: { x: 25, y: 0, z: 0 },
-    leftLowerLeg: { x: -20, y: 0, z: 0 },
-    rightUpperLeg: { x: -25, y: 0, z: 0 },
-    rightLowerLeg: { x: 20, y: 0, z: 0 },
-    head: { x: 0, y: 0, z: 0 },
+    leftUpperArm: { x: -20, y: 0, z: -5 },
+    leftLowerArm: { x: -5, y: 0, z: 5 },
+    rightUpperArm: { x: 20, y: 0, z: 5 },
+    rightLowerArm: { x: 0, y: 0, z: 0 },
+    leftUpperLeg: { x: 25, y: 0, z: -3 },
+    leftLowerLeg: { x: 0, y: 0, z: 0 },
+    rightUpperLeg: { x: -25, y: 0, z: 5 },
+    rightLowerLeg: { x: 0, y: 0, z: 0 },
+    head: { x: 0, y: 2, z: 5 },
     body: { x: 0, y: 0, z: 0 },
   },
   waving: {
@@ -60,22 +56,22 @@ const PRESET_POSES = {
     leftLowerArm: { x: -30, y: 0, z: 0 },
     rightUpperArm: { x: 0, y: 0, z: 0 },
     rightLowerArm: { x: -30, y: 0, z: 0 },
-    leftUpperLeg: { x: 90, y: 0, z: 0 },
-    leftLowerLeg: { x: -90, y: 0, z: 0 },
-    rightUpperLeg: { x: 90, y: 0, z: 0 },
-    rightLowerLeg: { x: -90, y: 0, z: 0 },
+    leftUpperLeg: { x: -45, y: 0, z: 0 },
+    leftLowerLeg: { x: 45, y: 0, z: 0},
+    rightUpperLeg: { x: -45, y: 0, z: 0 },
+    rightLowerLeg: { x: 45, y: 0, z: 0 },
     head: { x: 0, y: 0, z: 0 },
     body: { x: 0, y: 0, z: 0 },
   },
   running: {
     leftUpperArm: { x: -45, y: 0, z: 0 },
-    leftLowerArm: { x: -60, y: 0, z: 0 },
+    leftLowerArm: { x: 0, y: 0, z: 0 },
     rightUpperArm: { x: 45, y: 0, z: 0 },
-    rightLowerArm: { x: 60, y: 0, z: 0 },
+    rightLowerArm: { x: 0, y: 0, z: 0 },
     leftUpperLeg: { x: 45, y: 0, z: 0 },
-    leftLowerLeg: { x: -45, y: 0, z: 0 },
+    leftLowerLeg: { x: 0, y: 0, z: 0 },
     rightUpperLeg: { x: -45, y: 0, z: 0 },
-    rightLowerLeg: { x: 45, y: 0, z: 0 },
+    rightLowerLeg: { x: 0, y: 0, z: 0 },
     head: { x: 5, y: 0, z: 0 },
     body: { x: 5, y: 0, z: 0 },
   },
@@ -93,203 +89,169 @@ const PRESET_POSES = {
   },
 };
 
-export const CharacterViewer = ({ skinImage, onNewSkin }: CharacterViewerProps) => {
+export interface CharacterViewerProps {
+  skinImage: HTMLImageElement;
+  onChangeSkinClick: (el: HTMLElement) => void;
+}
+
+
+export const CharacterViewer = ({ skinImage, onChangeSkinClick }: CharacterViewerProps) => {
   const [currentPose, setCurrentPose] = useState(PRESET_POSES.standing);
-  const [selectedPreset, setSelectedPreset] = useState<keyof typeof PRESET_POSES>("standing");
+  const [selectedPreset, setSelectedPreset] = useState("standing");
+  const [openPanel, setOpenPanel] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [scene, setScene] = useState<THREE.Scene | null>(null);
   const [camera, setCamera] = useState<THREE.Camera | null>(null);
   const [renderDialogOpen, setRenderDialogOpen] = useState(false);
   const [lights, setLights] = useState<Light[]>([
-    {
-      id: "light-1",
-      type: "directional",
-      position: [10, 10, 5],
-      color: "#ffffff",
-      intensity: 1.2,
-    },
-    {
-      id: "light-2",
-      type: "directional",
-      position: [-10, 5, -5],
-      color: "#ffffff",
-      intensity: 0.3,
-    },
+    { id: "light-1", type: "directional", position: [10, 10, 5], color: "#ffffff", intensity: 1.2 },
+    { id: "light-2", type: "directional", position: [-10, 5, -5], color: "#fffff", intensity: 0.3 },
   ]);
 
-  const handlePoseChange = (bodyPart: keyof typeof currentPose, axis: 'x' | 'y' | 'z', value: number) => {
-    setCurrentPose(prev => ({
+  // --- existing handlers same ---
+  const handlePoseChange = (bodyPart: string, axis: string, value: number) => {
+    setCurrentPose((prev) => ({
       ...prev,
-      [bodyPart]: {
-        ...prev[bodyPart],
-        [axis]: value
-      }
+      [bodyPart]: { ...prev[bodyPart as keyof typeof prev], [axis]: value },
     }));
-    setSelectedPreset("standing"); // Reset preset selection when manually adjusting
+    setSelectedPreset("standing");
   };
 
-  const handlePresetChange = (preset: keyof typeof PRESET_POSES) => {
-    setCurrentPose(PRESET_POSES[preset]);
+  const handlePresetChange = (preset: string) => {
+    setCurrentPose(PRESET_POSES[preset as keyof typeof PRESET_POSES]);
     setSelectedPreset(preset);
   };
 
   const resetPose = () => {
     setCurrentPose(PRESET_POSES.standing);
     setSelectedPreset("standing");
-    toast("Pose reset to standing position");
+    toast("Pose reset to standing");
   };
 
   const takeScreenshot = () => {
     const canvas = canvasRef.current;
-    if (!canvas) {
-      toast.error("Canvas not found");
-      return;
-    }
-
-    const link = document.createElement('a');
-    link.download = 'minecraft-character-screenshot.png';
-    link.href = canvas.toDataURL('image/png');
+    if (!canvas) return toast.error("Canvas not found");
+    const link = document.createElement("a");
+    link.download = "minecraft-character.png";
+    link.href = canvas.toDataURL("image/png");
     link.click();
-    
     toast.success("Screenshot saved!");
   };
 
-  const handleHighQualityRender = async (
-    settings: RenderSettings,
-    onProgress: (progress: number) => void
-  ) => {
-    if (!scene || !camera) {
-      toast.error("Scene not ready");
-      throw new Error("Scene not ready");
-    }
-
-    try {
-      const result = await createHighQualityRender(scene, camera, settings, onProgress);
-      return result;
-    } catch (error) {
-      console.error("Render error:", error);
-      toast.error("Failed to create high quality render");
-      throw error;
-    }
+  const handleHighQualityRender = async (settings: RenderSettings, onProgress: (progress: number) => void) => {
+    if (!scene || !camera) throw new Error("Scene not ready");
+    return await createHighQualityRender(scene, camera, settings, onProgress);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-dark flex">
-      {/* 3D Viewer */}
+    <div className="relative w-full h-full bg-white border border-gray-300 flex overflow-hidden">
+      {/* ---- Main Canvas ---- */}
       <div className="flex-1 relative">
-        {/* Header */}
-        <div className="absolute top-0 left-0 right-0 z-10 p-4 bg-gradient-to-b from-background/80 to-transparent">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-gradient-gaming rounded-lg flex items-center justify-center shadow-glow">
-                <Camera className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <h1 className="text-xl font-bold text-foreground">Character Viewer</h1>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="secondary"
-                className="flex items-center gap-2"
-                onClick={onNewSkin}
-              >
-                <Upload className="w-4 h-4" />
-                New Skin
-              </Button>
-              <Button
-                variant="outline"
-                className="flex items-center gap-2"
-                onClick={takeScreenshot}
-              >
-                <Camera className="w-4 h-4" />
-                Screenshot
-              </Button>
-              <Button
-                className="flex items-center gap-2 bg-gradient-gaming hover:shadow-glow transition-smooth"
-                onClick={() => setRenderDialogOpen(true)}
-              >
-                <Download className="w-4 h-4" />
-                HQ Render
-              </Button>
-            </div>
+
+        {/* Top Header */}
+        <div className="absolute z-20 flex justify-between items-center bg-white rounded-br-xl backdrop-blur-sm p-3">
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={(e) => onChangeSkinClick(e.currentTarget)}>
+              <Upload className="w-4 h-4 mr-1" /> Change Skin
+            </Button>
+            <Button variant="outline" size="sm" onClick={takeScreenshot}>
+              <Camera className="w-4 h-4 mr-1" /> Screenshot
+            </Button>
+            <Button variant="default" size="sm" onClick={() => setRenderDialogOpen(true)}>
+              <Download className="w-4 h-4 mr-1" /> HQ Render
+            </Button>
           </div>
         </div>
 
-        {/* 3D Canvas */}
+        {/* ---- Right Vertical Tabs ---- */}
+        <div className="absolute flex flex-col right-0 items-center border-l z-50 border-gray-400 rounded-bl-xl bg-white w-14 p-2 space-y-4">
+          <Button
+            variant={openPanel === "lighting" ? "default" : "ghost"}
+            size="icon"
+            onClick={() => setOpenPanel(openPanel === "lighting" ? null : "lighting")}
+          >
+            <Sun className="w-4 h-4" />
+          </Button>
+          <Button
+            variant={openPanel === "poses" ? "default" : "ghost"}
+            size="icon"
+            onClick={() => setOpenPanel(openPanel === "poses" ? null : "poses")}
+          >
+            <Armchair className="w-4 h-4" />
+          </Button>
+          <Button
+            variant={openPanel === "poseControls" ? "default" : "ghost"}
+            size="icon"
+            onClick={() => setOpenPanel(openPanel === "poseControls" ? null : "poseControls")}
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+          </Button>
+        </div>
+
+
         <Canvas
           ref={canvasRef}
-          camera={{ position: [0, 2, 8], fov: 45 }}
-          className="w-full h-full"
-          gl={{ 
-            preserveDrawingBuffer: true, 
-            alpha: true, 
-            antialias: true,
-            powerPreference: "high-performance"
-          }}
-          onCreated={({ scene: threeScene, camera: threeCamera }) => {
-            setScene(threeScene);
-            setCamera(threeCamera);
+          camera={{ position: [5, 0, 8], fov: 45 }}
+          className="sm:w-auto bg-gray-950 border border-gray-300"
+          gl={{ preserveDrawingBuffer: true, antialias: true }}
+          onCreated={({ scene, camera }) => {
+            setScene(scene);
+            setCamera(camera);
           }}
         >
-          {/* eslint-disable-next-line */}
-          <ambientLight intensity={0.4} />
+
+          <ambientLight intensity={0.5} />
           <LightRenderer lights={lights} />
-          
           <MinecraftCharacter skinImage={skinImage} pose={currentPose} />
-          
-          <OrbitControls
-            enablePan={true}
-            enableZoom={true}
-            enableRotate={true}
-            minDistance={2}
-            maxDistance={15}
-            target={[0, 0, 0]}
-            enableDamping={true}
-            dampingFactor={0.05}
-          />
-          
+          <OrbitControls enablePan enableZoom enableRotate />
           <Environment preset="studio" />
         </Canvas>
       </div>
 
-      {/* Controls Panel */}
-      <div className="w-80 bg-card border-l border-border p-6 overflow-y-auto">
-        <div className="space-y-6">
-          {/* Lighting Controls */}
+
+
+
+      {/* ---- Side Panel ---- */}
+      <div
+        className={`
+    absolute bg-white top-0 bottom-0 right-13 z-30 w-80 bg-card border-border p-4 overflow-y-auto
+    transition-transform duration-600 ease-in-out
+    ${openPanel ? "translate-x-0" : "translate-x-[calc(100%+4rem)]"}
+  `}
+      >
+        {openPanel === "lighting" && (
           <LightingControls lights={lights} onLightsChange={setLights} />
-          {/* Preset Poses */}
-          <Card className="p-4">
-            <h3 className="font-semibold text-foreground mb-4">Preset Poses</h3>
+        )}
+        {openPanel === "poses" && (
+          <div>
+            <h4 className="font-semibold mb-3">Preset Poses</h4>
             <div className="grid grid-cols-2 gap-2">
               {Object.keys(PRESET_POSES).map((preset) => (
                 <Button
                   key={preset}
-                  variant={selectedPreset === preset ? "default" : "secondary"}
-                  className="capitalize text-xs h-8"
+                  variant={selectedPreset === preset ? "default" : "outline"}
                   size="sm"
-                  onClick={() => handlePresetChange(preset as keyof typeof PRESET_POSES)}
+                  className="capitalize text-xs"
+                  onClick={() => handlePresetChange(preset)}
                 >
                   {preset}
                 </Button>
               ))}
             </div>
             <Button
-              variant="outline"
-              className="w-full mt-3 flex items-center gap-2"
+              className="w-full mt-3"
               size="sm"
               onClick={resetPose}
             >
-              <RotateCcw className="w-4 h-4" />
-              Reset Pose
+              <RotateCcw className="w-4 h-4 mr-1" /> Reset
             </Button>
-          </Card>
-
-          {/* Pose Controls */}
-          <PoseControls
-            pose={currentPose}
-            onPoseChange={handlePoseChange}
-          />
-        </div>
+          </div>
+        )}
+        {openPanel === "poseControls" && (
+          <PoseControls pose={currentPose} onPoseChange={handlePoseChange} />
+        )}
       </div>
+
 
       <RenderDialog
         open={renderDialogOpen}
@@ -299,3 +261,5 @@ export const CharacterViewer = ({ skinImage, onNewSkin }: CharacterViewerProps) 
     </div>
   );
 };
+
+export default CharacterViewer;

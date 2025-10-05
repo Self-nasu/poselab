@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/Button";
 import { Slider } from "@/components/ui/slider";
-import { Plus, Trash2, Lightbulb } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export interface Light {
@@ -56,12 +55,11 @@ export const LightingControls = ({ lights, onLightsChange }: LightingControlsPro
   const selectedLightData = lights.find((l) => l.id === selectedLight);
 
   return (
-    <Card className="p-4">
+    <div>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-foreground flex items-center gap-2">
-          <Lightbulb className="w-4 h-4" />
+        <h4 className="font-semibold text-foreground flex items-center gap-2">
           Lighting
-        </h3>
+        </h4>
         <Button
           size="sm"
           variant="secondary"
@@ -212,6 +210,6 @@ export const LightingControls = ({ lights, onLightsChange }: LightingControlsPro
           </div>
         )}
       </div>
-    </Card>
+    </div>
   );
 };

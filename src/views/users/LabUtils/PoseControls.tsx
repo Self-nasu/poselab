@@ -1,4 +1,3 @@
-import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 
@@ -39,12 +38,12 @@ export const PoseControls = ({ pose, onPoseChange }: PoseControlsProps) => {
   ];
 
   return (
-    <Card className="p-4">
-      <h3 className="font-semibold text-foreground mb-4">Manual Controls</h3>
-      <div className="space-y-4 max-h-96 overflow-y-auto">
+    <div>
+      <h4 className="font-semibold text-foreground mb-4">Manual Controls</h4>
+      <div className="space-y-4 overflow-y-auto">
         {bodyParts.map((bodyPart) => (
           <div key={bodyPart.key} className="space-y-2 p-3 bg-muted/20 rounded-lg border border-border/50">
-            <h4 className={`text-sm font-medium ${bodyPart.color}`}>{bodyPart.label}</h4>
+            <h4 className={`text-sm font-medium`}>{bodyPart.label}</h4>
             <div className="grid grid-cols-3 gap-2">
               {axes.map((axis) => (
                 <div key={axis.key} className="space-y-1">
@@ -70,6 +69,6 @@ export const PoseControls = ({ pose, onPoseChange }: PoseControlsProps) => {
           </div>
         ))}
       </div>
-    </Card>
+    </div>
   );
 };
