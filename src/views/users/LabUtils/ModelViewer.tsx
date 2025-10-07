@@ -168,11 +168,18 @@ export const ModelViewer = ({ modelUrl, onChangeModelClick }: ModelViewerProps) 
         if ((child as THREE.Mesh).isMesh) {
           const mesh = child as THREE.Mesh;
           const material = mesh.material as THREE.MeshStandardMaterial;
-          // Match the original texture reference
-          if (material[textureInfo.mapType] === textureInfo.texture) {
-            material[textureInfo.mapType] = newTexture;
-            material.needsUpdate = true;
-            mesh.material = material;
+
+          if (material[textureInfo.mapType as keyof typeof material] === textureInfo.texture) {
+            // Only assign to writable texture properties, not read-only ones
+            if (
+              textureInfo.mapType === "map" ||
+              textureInfo.mapType === "normalMap" ||
+              textureInfo.mapType === "roughnessMap"
+            ) {
+              (material as any)[textureInfo.mapType] = newTexture;  // eslint-disable-line
+              material.needsUpdate = true;
+              mesh.material = material;
+            }
           }
         }
       });
