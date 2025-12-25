@@ -8,12 +8,13 @@ import type {
     SignInResponse,
     SignUpResponse,
 } from '@/@types/auth'
+import { log } from 'console'
 
 export async function apiSignIn(data: SignInCredential) {
     return ApiService.fetchDataWithAxios<SignInResponse>({
         url: endpointConfig.signIn,
         method: 'post',
-        data,
+        data: { login_type_id: 4, payload: data }  // Add payload with email/password
     })
 }
 

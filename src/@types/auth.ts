@@ -22,6 +22,8 @@ export type SignUpCredential = {
     password: string
 }
 
+export type OAuthResponse = SignInResponse 
+
 export type ForgotPassword = {
     email: string
 }
