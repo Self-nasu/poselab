@@ -24,6 +24,17 @@ export type ApiSignInResponse = {
     }
 }
 
+export type ApiSignUpResponse = {
+    status: number
+    success: boolean
+    User: {
+        uid: string
+        email: string
+        provider: string
+        createdAt: string
+    }
+}
+
 export type SignUpResponse = SignInResponse
 
 export type SignUpCredential = {

@@ -8,6 +8,7 @@ import type {
     SignInResponse,
     SignUpResponse,
     ApiSignInResponse,
+    ApiSignUpResponse,
 } from '@/@types/auth'
 import { mapApiResponseToUser } from '@/utils/authMapper'
 
@@ -33,10 +34,14 @@ export async function apiPhoneSignIn(data: { id_token: string }) {
 }
 
 export async function apiSignUp(data: SignUpCredential) {
-    const response = await ApiService.fetchDataWithAxios<ApiSignInResponse>({
+    const response = await ApiService.fetchDataWithAxios<ApiSignUpResponse>({
         url: endpointConfig.signUp,
         method: 'post',
-        data,
+        data: {
+            username: data.userName,
+            email: data.email,
+            password: data.password,
+        },
     })
     return mapApiResponseToUser(response)
 }
