@@ -2,9 +2,9 @@ import Container from '@/components/shared/Container'
 
 const TermsAndConditions = () => {
     return (
-        <div className="py-20 bg-gray-950 min-h-screen">
+        <div className="py-12 bg-gray-950 min-h-screen">
             <Container>
-                <div className="max-w-4xl mx-auto backdrop-blur-xl bg-white/5 border border-white/10 p-10 rounded-3xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <div className="backdrop-blur-xl bg-white/5 border border-white/10 p-10 rounded-3xl animate-in fade-in slide-in-from-bottom-4 duration-700">
                     <div className="mb-12">
                         <div className="flex items-center gap-2 text-primary mb-3 font-bold tracking-[0.3em] text-[10px] uppercase">
                             <div className="w-5 h-[2px] bg-primary rounded-full" />
