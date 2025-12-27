@@ -17,7 +17,7 @@ const appConfig: AppConfig = {
     appUrl: 'https://poselab.nexiotech.cloud',
     appName: 'PoseLab',
     appDescription: 'PoseLab – Minecraft Skin Posing & Render Tool',
-    apiBaseUrl: 'https://poselabapi.nexiotech.cloud',
+    apiBaseUrl: 'https://poselab-backend.nexiotech.cloud',
     apiPrefix: '/api',
     authenticatedEntryPath: '/home',
     unAuthenticatedEntryPath: '/sign-in',

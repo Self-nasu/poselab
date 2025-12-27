@@ -5,12 +5,33 @@ export type SignInCredential = {
 
 export type SignInResponse = {
     token: string
-    user: {
-        userId: string
-        userName: string
-        authority: string[]
-        avatar: string
+    user: User
+}
+
+export type ApiSignInResponse = {
+    status: number
+    success: boolean
+    Token: string
+    User: {
+        uid: string
+        phone: string | null
+        email: string | null
+        provider: string
+        createdAt: {
+            _seconds: number
+            _nanoseconds: number
+        }
+    }
+}
+
+export type ApiSignUpResponse = {
+    status: number
+    success: boolean
+    User: {
+        uid: string
         email: string
+        provider: string
+        createdAt: string
     }
 }
 
@@ -21,6 +42,8 @@ export type SignUpCredential = {
     email: string
     password: string
 }
+
+export type OAuthResponse = SignInResponse
 
 export type ForgotPassword = {
     email: string

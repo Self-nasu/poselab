@@ -1,6 +1,8 @@
 // src/firebase.ts
 import { initializeApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
+import { getAuth } from 'firebase/auth'
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyDlxnhkCH_m4CVVCdjgzF7BAS4YAk6Zn10",
@@ -14,6 +16,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const auth = getAuth(app) 
 
 // Initialize Analytics (only if supported in this environment)
 let analytics: ReturnType<typeof getAnalytics> | undefined;
@@ -26,4 +29,4 @@ isSupported().then((yes) => {
   }
 });
 
-export { app, analytics };
+export { app, analytics, auth };

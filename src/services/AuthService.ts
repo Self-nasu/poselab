@@ -7,22 +7,43 @@ import type {
     ResetPassword,
     SignInResponse,
     SignUpResponse,
+    ApiSignInResponse,
+    ApiSignUpResponse,
 } from '@/@types/auth'
+import { mapApiResponseToUser } from '@/utils/authMapper'
 
 export async function apiSignIn(data: SignInCredential) {
-    return ApiService.fetchDataWithAxios<SignInResponse>({
+    const response = await ApiService.fetchDataWithAxios<ApiSignInResponse>({
         url: endpointConfig.signIn,
         method: 'post',
-        data,
+        data: { login_type_id: 4, payload: data }
     })
+    return mapApiResponseToUser(response)
+}
+
+export async function apiPhoneSignIn(data: { id_token: string }) {
+    const response = await ApiService.fetchDataWithAxios<ApiSignInResponse>({
+        url: endpointConfig.signIn,
+        method: 'post',
+        data: {
+            login_type_id: 3,
+            payload: data,
+        },
+    })
+    return mapApiResponseToUser(response)
 }
 
 export async function apiSignUp(data: SignUpCredential) {
-    return ApiService.fetchDataWithAxios<SignUpResponse>({
+    const response = await ApiService.fetchDataWithAxios<ApiSignUpResponse>({
         url: endpointConfig.signUp,
         method: 'post',
-        data,
+        data: {
+            username: data.userName,
+            email: data.email,
+            password: data.password,
+        },
     })
+    return mapApiResponseToUser(response)
 }
 
 export async function apiSignOut() {

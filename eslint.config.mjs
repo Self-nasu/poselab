@@ -151,8 +151,6 @@ export default tseslint.config(
                     'userData',
                     'attachArray',
                     'attachObject',
-                    'object',
-                    'dispose',
                 ],
             },
         ],

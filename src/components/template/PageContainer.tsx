@@ -174,12 +174,12 @@ const PageContainer = (props: PageContainerProps) => {
                             </PageContainerBody>
                         </div>
                     </main>
-                    {/* <PageContainerFooter
+                    <PageContainerFooter
                         footer={footer}
                         pageContainerType={
                             pageContainerType as FooterPageContainerType
                         }
-                    /> */}
+                    />
                 </div>
             )}
         </>

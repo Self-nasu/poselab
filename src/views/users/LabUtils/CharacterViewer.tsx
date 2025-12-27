@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment, GizmoHelper, GizmoViewport, Stats } from "@react-three/drei";
-// import { MinecraftCharacter } from "./MinecraftCharacter";
+import { MinecraftCharacter } from "./MinecraftCharacter";
 import { PoseControls } from "./PoseControls";
 import { LightingControls, Light } from "./LightingControls";
 import { LightRenderer } from "./LightRenderer";
@@ -16,28 +16,8 @@ import { getQualityPreset } from "./qualitySettings";
 import { useDeviceQuality } from "./hooks/useDeviceQuality";
 import { enhanceSceneMaterials } from "./pbrMaterials";
 import PRESET_POSES from "./posePreset";
-import {BendableMinecraftCharacter} from "./BendableMinecraftCharacter";
+// import {BendableMinecraftCharacter} from "./BendableMinecraftCharacter";
 
-const characterPose = {
-  leftArm: {
-    position: { x: 0, y: 0, z: -45 },  // Shoulder rotation
-    bend: 90                            // Elbow bend in degrees
-  },
-  rightArm: {
-    position: { x: 0, y: 0, z: 45 },
-    bend: 45
-  },
-  leftLeg: {
-    position: { x: 30, y: 0, z: 0 },   // Hip rotation
-    bend: 60                            // Knee bend in degrees  
-  },
-  rightLeg: {
-    position: { x: -30, y: 0, z: 0 },
-    bend: 60
-  },
-  head: { x: 0, y: 15, z: 0 },         // Head rotation
-  body: { x: 0, y: 0, z: 0 }           // Body rotation
-};
 
 
 export interface CharacterViewerProps {
@@ -179,7 +159,7 @@ export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: Characte
           <GizmoHelper alignment="bottom-left" margin={[80, 80]}>
             <GizmoViewport axisColors={["#ff3653", "#8adb00", "#2c8fff"]} labelColor="white" />
           </GizmoHelper>
-          <BendableMinecraftCharacter skinImage={skinImage} pose={characterPose} />
+          <MinecraftCharacter skinImage={skinImage} pose={currentPose.poseConfig} />
           <OrbitControls enablePan enableZoom enableRotate />
           <Environment preset="sunset" />
         </Canvas>

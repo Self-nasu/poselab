@@ -100,8 +100,26 @@ function AuthProvider({ children }: AuthProviderProps) {
         try {
             const resp = await apiSignUp(values)
             if (resp) {
-                handleSignIn({ accessToken: resp.token }, resp.user)
-                redirect()
+                const { token } = resp
+                if (token) {
+                    handleSignIn({ accessToken: token }, resp.user)
+                    redirect()
+                } else {
+                    // If no token from sign up, verify credentials using sign in to get token
+                    const signInResp = await apiSignIn({
+                        email: values.email,
+                        password: values.password,
+                    })
+
+                    if (signInResp && signInResp.token) {
+                        handleSignIn({ accessToken: signInResp.token }, signInResp.user)
+                        redirect()
+                    } else {
+                        // Fallback if auto-login fails, though user is created
+                        navigatorRef.current?.navigate(appConfig.unAuthenticatedEntryPath)
+                    }
+                }
+
                 return {
                     status: 'success',
                     message: '',
