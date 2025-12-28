@@ -1,35 +1,42 @@
 import { useState, useRef, useEffect, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Environment, GizmoHelper, GizmoViewport } from "@react-three/drei";
-// import { BendableMinecraftCharacter } from "./BendableMinecraftCharacter";
-import {MinecraftCharacter} from "./MinecraftCharacter";
-import { PoseControls } from "./PoseControls";
+
+import { MinecraftCharacter } from "./standard/MinecraftCharacter";
+import { BendableMinecraftCharacter } from "./bendable/BendableMinecraftCharacter";
+import { PoseControls as StandardPoseControls } from "./standard/PoseControls";
+import { PoseControls as BendablePoseControls } from "./bendable/PoseControls";
+
+import STANDARD_POSES from "./standard/posePresets";
+import BENDABLE_POSES from "./bendable/posePresets";
+
 import { LightingControls, Light } from "./LightingControls";
 import { LightRenderer } from "./LightRenderer";
 import { RenderDialog, RenderSettings } from "./RenderDialog";
 import { createHighQualityRender } from "./renderUtils";
-import { Button } from "@/components/ui/Button";
-import { Camera, Upload, Download, RotateCcw, SlidersHorizontal, Lightbulb, SplinePointer, Gpu, Box, Accessibility, Layers, Paintbrush, Share, LogOut, RotateCw, Smile } from "lucide-react";
+import { Camera, Upload, Download, RotateCcw, Lightbulb, Gpu, Box, Accessibility, Smile, LogOut, RotateCw } from "lucide-react";
 import { toast } from "sonner";
 import * as THREE from "three";
 import { QualitySetting } from "./QualitySetting";
 import { getQualityPreset } from "./qualitySettings";
 import { useDeviceQuality } from "./hooks/useDeviceQuality";
 import { enhanceSceneMaterials } from "./pbrMaterials";
-import PRESET_POSES from "./posePreset";
 import { cn } from "@/lib/utils";
 
 export interface CharacterViewerProps {
   skinImage: HTMLImageElement;
   onChangeSkinClick: (el: HTMLElement) => void;
-  pose?: typeof PRESET_POSES[keyof typeof PRESET_POSES];
+  pose?: any; // Accepting any pose config as it varies by model
 }
 
 export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: CharacterViewerProps) => {
-  const [currentPose, setCurrentPose] = useState(pose || PRESET_POSES.standing);
-  const [selectedPreset, setSelectedPreset] = useState(
-    Object.keys(PRESET_POSES).find((key) => PRESET_POSES[key as keyof typeof PRESET_POSES] === pose) || "standing"
-  );
+  const [characterModel, setCharacterModel] = useState<'default' | 'bendable'>('default');
+
+  const activePresets = characterModel === 'default' ? STANDARD_POSES : BENDABLE_POSES;
+  const defaultPose = activePresets.standing || Object.values(activePresets)[0];
+
+  const [currentPose, setCurrentPose] = useState(pose || defaultPose);
+  const [selectedPreset, setSelectedPreset] = useState("standing");
 
   const [openPanel, setOpenPanel] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -48,13 +55,29 @@ export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: Characte
     if (sceneRef.current) enhanceSceneMaterials(sceneRef.current, undefined, qualityPreset);
   }, [qualityPreset]);
 
+  const handleModelChange = (model: 'default' | 'bendable') => {
+    if (model === characterModel) return;
+
+    // Get the correct presets for the NEW model
+    const newPresets = model === 'default' ? STANDARD_POSES : BENDABLE_POSES;
+    const newDefault = newPresets.standing || Object.values(newPresets)[0];
+
+    // Update everything in one batch to ensure they stay in sync
+    // This is critical to prevent passing a Bendable pose to the Standard renderer
+    setCharacterModel(model);
+    setCurrentPose(newDefault);
+    setSelectedPreset("standing");
+
+    toast(`Switched to ${newDefault.poseMeta?.name || "Default"} for ${model} model`);
+  };
+
   const handlePoseChange = (bodyPart: string, axis: string, value: number) => {
-    setCurrentPose((prev) => ({
+    setCurrentPose((prev: any) => ({
       ...prev,
       poseConfig: {
         ...prev.poseConfig,
         [bodyPart]: {
-          ...prev.poseConfig[bodyPart as keyof typeof prev.poseConfig],
+          ...prev.poseConfig[bodyPart],
           [axis]: value,
         },
       },
@@ -63,12 +86,14 @@ export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: Characte
   };
 
   const handlePresetChange = (preset: string) => {
-    setCurrentPose(PRESET_POSES[preset as keyof typeof PRESET_POSES]);
+    // @ts-ignore
+    setCurrentPose(activePresets[preset]);
     setSelectedPreset(preset);
   };
 
   const resetPose = () => {
-    setCurrentPose(PRESET_POSES.standing);
+    // @ts-ignore
+    setCurrentPose(activePresets.standing || Object.values(activePresets)[0]);
     setSelectedPreset("standing");
     toast("Pose reset to standing");
   };
@@ -213,11 +238,18 @@ export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: Characte
               <GizmoViewport axisColors={["#ff3653", "#8adb00", "#2c8fff"]} labelColor="white" />
             </GizmoHelper>
             <Suspense fallback={null}>
-              <MinecraftCharacter
-                skinImage={skinImage}
-                pose={currentPose.poseConfig}
-                // facial={currentPose.facial}
-              />
+              {characterModel === 'default' ? (
+                <MinecraftCharacter
+                  skinImage={skinImage}
+                  pose={currentPose.poseConfig}
+                />
+              ) : (
+                <BendableMinecraftCharacter
+                  skinImage={skinImage}
+                  pose={currentPose.poseConfig}
+                  facial={currentPose.facial}
+                />
+              )}
             </Suspense>
             <OrbitControls enablePan enableZoom enableRotate />
             <Environment preset="sunset" />
@@ -227,6 +259,31 @@ export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: Characte
         {/* Bottom Bar */}
         <div className="h-32 border-t border-white/5 bg-gray-900 flex items-center justify-center z-20">
           <div className="flex items-center bg-gray-800/40 border border-white/5 rounded-2xl p-2 px-4 shadow-2xl backdrop-blur-xl">
+            <BottomControlGroup label="MODEL">
+              <button
+                onClick={() => handleModelChange('default')}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-widest transition-all duration-200 border",
+                  characterModel === 'default'
+                    ? "bg-blue-500/10 border-blue-500/50 text-blue-400"
+                    : "bg-white/5 border-white/5 text-gray-400 hover:border-white/20"
+                )}
+              >
+                STANDARD
+              </button>
+              <button
+                onClick={() => handleModelChange('bendable')}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-widest transition-all duration-200 border",
+                  characterModel === 'bendable'
+                    ? "bg-blue-500/10 border-blue-500/50 text-blue-400"
+                    : "bg-white/5 border-white/5 text-gray-400 hover:border-white/20"
+                )}
+              >
+                BENDABLE
+              </button>
+            </BottomControlGroup>
+
             <BottomControlGroup label="JOINTS">
               <ControlButton icon={Accessibility} active />
               <ControlButton icon={Accessibility} />
@@ -277,28 +334,35 @@ export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: Characte
             {openPanel === "lighting" && <LightingControls lights={lights} onLightsChange={setLights} />}
             {openPanel === "poses" && (
               <div className="grid grid-cols-2 gap-3">
-                {Object.entries(PRESET_POSES).map(([key, presetData]) => (
-                  <button
-                    key={key}
-                    onClick={() => handlePresetChange(key)}
-                    className={cn(
-                      "group relative aspect-square rounded-2xl border transition-all overflow-hidden",
-                      selectedPreset === key ? "border-blue-500 ring-4 ring-blue-500/20" : "border-white/5 hover:border-white/20"
-                    )}
-                  >
-                    <img
-                      src={presetData.poseMeta?.previewImgUrl || "./poseLabsPose/placeholder-pose.png"}
-                      alt={presetData.poseMeta?.name || key}
-                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
-                    />
-                    <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/80 to-transparent">
-                      <p className="text-[10px] font-bold text-white truncate">{presetData.poseMeta?.name || key}</p>
-                    </div>
-                  </button>
-                ))}
+                {Object.entries(activePresets)
+                  .map(([key, presetData]: [string, any]) => (
+                    <button
+                      key={key}
+                      onClick={() => handlePresetChange(key)}
+                      className={cn(
+                        "group relative aspect-square rounded-2xl border transition-all overflow-hidden",
+                        selectedPreset === key ? "border-blue-500 ring-4 ring-blue-500/20" : "border-white/5 hover:border-white/20"
+                      )}
+                    >
+                      <img
+                        src={presetData.poseMeta?.previewImgUrl || "./poseLabsPose/placeholder-pose.png"}
+                        alt={presetData.poseMeta?.name || key}
+                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                      />
+                      <div className="absolute inset-x-0 bottom-0 p-2 bg-gradient-to-t from-black/80 to-transparent">
+                        <p className="text-[10px] font-bold text-white truncate">{presetData.poseMeta?.name || key}</p>
+                      </div>
+                    </button>
+                  ))}
               </div>
             )}
-            {openPanel === "poseControls" && <PoseControls pose={currentPose} onPoseChange={handlePoseChange} />}
+            {openPanel === "poseControls" && (
+              characterModel === 'default' ?
+                //@ts-ignore
+                <StandardPoseControls pose={currentPose} onPoseChange={handlePoseChange} /> :
+                //@ts-ignore
+                <BendablePoseControls pose={currentPose} onPoseChange={handlePoseChange} />
+            )}
           </div>
         </div>
 
@@ -318,4 +382,3 @@ export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: Characte
 };
 
 export default CharacterViewer;
-
