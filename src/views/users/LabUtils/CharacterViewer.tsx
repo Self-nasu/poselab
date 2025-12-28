@@ -9,6 +9,8 @@ import { PoseControls as BendablePoseControls } from "./bendable/PoseControls";
 
 import STANDARD_POSES from "./standard/posePresets";
 import BENDABLE_POSES from "./bendable/posePresets";
+import { NewMinecraftCharacter } from "./rigid-system/NewMinecraftCharacter";
+import { RIGID_POSES, BENDABLE_RIGID_POSES } from "./rigid-system/posePresets";
 
 import { LightingControls, Light } from "./LightingControls";
 import { LightRenderer } from "./LightRenderer";
@@ -30,9 +32,13 @@ export interface CharacterViewerProps {
 }
 
 export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: CharacterViewerProps) => {
-  const [characterModel, setCharacterModel] = useState<'default' | 'bendable'>('default');
+  const [characterModel, setCharacterModel] = useState<'default' | 'bendable' | 'new_rigid' | 'new_bendable'>('bendable');
 
-  const activePresets = characterModel === 'default' ? STANDARD_POSES : BENDABLE_POSES;
+  const activePresets =
+    characterModel === 'default' ? STANDARD_POSES :
+      characterModel === 'bendable' ? BENDABLE_POSES :
+        characterModel === 'new_rigid' ? RIGID_POSES :
+          BENDABLE_RIGID_POSES;
   const defaultPose = activePresets.standing || Object.values(activePresets)[0];
 
   const [currentPose, setCurrentPose] = useState(pose || defaultPose);
@@ -55,11 +61,15 @@ export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: Characte
     if (sceneRef.current) enhanceSceneMaterials(sceneRef.current, undefined, qualityPreset);
   }, [qualityPreset]);
 
-  const handleModelChange = (model: 'default' | 'bendable') => {
+  const handleModelChange = (model: 'default' | 'bendable' | 'new_rigid' | 'new_bendable') => {
     if (model === characterModel) return;
 
     // Get the correct presets for the NEW model
-    const newPresets = model === 'default' ? STANDARD_POSES : BENDABLE_POSES;
+    const newPresets =
+      model === 'default' ? STANDARD_POSES :
+        model === 'bendable' ? BENDABLE_POSES :
+          model === 'new_rigid' ? RIGID_POSES :
+            BENDABLE_RIGID_POSES;
     const newDefault = newPresets.standing || Object.values(newPresets)[0];
 
     // Update everything in one batch to ensure they stay in sync
@@ -243,11 +253,17 @@ export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: Characte
                   skinImage={skinImage}
                   pose={currentPose.poseConfig}
                 />
-              ) : (
+              ) : characterModel === 'bendable' ? (
                 <BendableMinecraftCharacter
                   skinImage={skinImage}
                   pose={currentPose.poseConfig}
                   facial={currentPose.facial}
+                />
+              ) : (
+                <NewMinecraftCharacter
+                  skinImage={skinImage}
+                  pose={currentPose.poseConfig} // Pass RigState directly
+                  bendable={characterModel === 'new_bendable'}
                 />
               )}
             </Suspense>
@@ -277,6 +293,31 @@ export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: Characte
                   "px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-widest transition-all duration-200 border",
                   characterModel === 'bendable'
                     ? "bg-blue-500/10 border-blue-500/50 text-blue-400"
+                    : "bg-white/5 border-white/5 text-gray-400 hover:border-white/20"
+                )}
+              >
+                BENDABLE
+              </button>
+            </BottomControlGroup>
+
+            <BottomControlGroup label="NEW SYSTEM">
+              <button
+                onClick={() => handleModelChange('new_rigid')}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-widest transition-all duration-200 border",
+                  characterModel === 'new_rigid'
+                    ? "bg-purple-500/10 border-purple-500/50 text-purple-400"
+                    : "bg-white/5 border-white/5 text-gray-400 hover:border-white/20"
+                )}
+              >
+                RIGID
+              </button>
+              <button
+                onClick={() => handleModelChange('new_bendable')}
+                className={cn(
+                  "px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-widest transition-all duration-200 border",
+                  characterModel === 'new_bendable'
+                    ? "bg-purple-500/10 border-purple-500/50 text-purple-400"
                     : "bg-white/5 border-white/5 text-gray-400 hover:border-white/20"
                 )}
               >
