@@ -50,26 +50,26 @@ export const PoseControls = ({ pose, onPoseChange }: PoseControlsProps) => {
 
     return (
         <div>
-            <h4 className="font-semibold text-foreground mb-4">
-                Manual Controls
+            <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 mb-6">
+                Manual Joint Manipulation
             </h4>
 
             {/* --- BODY CONTROLS --- */}
-            <div className="space-y-4 overflow-y-auto">
+            <div className="space-y-4">
                 {bodyParts.map((bodyPart) => (
                     <div
                         key={bodyPart.key}
-                        className="space-y-2 p-3 bg-muted/20 rounded-lg border border-border/50"
+                        className="space-y-4 p-4 bg-gray-950/40 rounded-2xl border border-white/5 hover:border-white/10 transition-colors"
                     >
-                        <h4 className={`text-sm font-medium ${bodyPart.color}`}>{bodyPart.label}</h4>
-                        <div className="grid grid-cols-3 gap-2">
+                        <h4 className={`text-[10px] font-black uppercase tracking-widest ${bodyPart.color}`}>{bodyPart.label}</h4>
+                        <div className="grid grid-cols-1 gap-4">
                             {axes.map((axis) => (
-                                <div key={axis.key} className="space-y-1">
+                                <div key={axis.key} className="space-y-2">
                                     <div className="flex items-center justify-between">
-                                        <Label className={`text-xs ${axis.color} font-medium`}>
-                                            {axis.key.toUpperCase()}
+                                        <Label className={`text-[9px] ${axis.color} font-black uppercase tracking-tighter`}>
+                                            {axis.label}
                                         </Label>
-                                        <span className="text-xs text-muted-foreground font-mono">
+                                        <span className="text-[10px] text-gray-400 font-mono bg-black/40 px-1.5 py-0.5 rounded">
                                             {pose.poseConfig[bodyPart.key][axis.key]}°
                                         </span>
                                     </div>
@@ -81,7 +81,7 @@ export const PoseControls = ({ pose, onPoseChange }: PoseControlsProps) => {
                                         min={-180}
                                         max={180}
                                         step={5}
-                                        className="w-full h-2"
+                                        className="w-full"
                                     />
                                 </div>
                             ))}
@@ -92,43 +92,48 @@ export const PoseControls = ({ pose, onPoseChange }: PoseControlsProps) => {
 
             {/* --- FACIAL CONTROLS (Optional) --- */}
             {pose.facial && (
-                <div className="mt-6 space-y-3">
-                    <h4 className="font-semibold text-foreground mb-2">Facial Controls</h4>
+                <div className="mt-8 space-y-4">
+                    <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-500 mb-4">Facial Expressions</h4>
 
                     {pose.facial.eyes && (
-                        <div className="space-y-2 p-3 bg-muted/20 rounded-lg border border-border/50">
-                            <h4 className="text-sm font-medium text-blue-400">Eyes</h4>
-                            <Label className="text-xs text-muted-foreground">Blink</Label>
-                            <Slider
-                                value={[pose.facial.eyes.blink]}
-                                min={0}
-                                max={1}
-                                step={0.05}
-                                className="w-full h-2"
-                            // placeholder for onChange when you add handler
-                            />
+                        <div className="space-y-4 p-4 bg-gray-950/40 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-blue-400">Optical Sensors</h4>
+                            <div className="space-y-2">
+                                <Label className="text-[9px] text-gray-500 font-black uppercase tracking-tighter">Blink Compression</Label>
+                                <Slider
+                                    value={[pose.facial.eyes.blink]}
+                                    min={0}
+                                    max={1}
+                                    step={0.05}
+                                    className="w-full"
+                                />
+                            </div>
                         </div>
                     )}
 
                     {pose.facial.mouth && (
-                        <div className="space-y-2 p-3 bg-muted/20 rounded-lg border border-border/50">
-                            <h4 className="text-sm font-medium text-pink-400">Mouth</h4>
-                            <Label className="text-xs text-muted-foreground">Smile</Label>
-                            <Slider
-                                value={[pose.facial.mouth.smile]}
-                                min={0}
-                                max={1}
-                                step={0.05}
-                                className="w-full h-2"
-                            />
-                            <Label className="text-xs text-muted-foreground">Open</Label>
-                            <Slider
-                                value={[pose.facial.mouth.open]}
-                                min={0}
-                                max={1}
-                                step={0.05}
-                                className="w-full h-2"
-                            />
+                        <div className="space-y-4 p-4 bg-gray-950/40 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-pink-400">Mandibular Region</h4>
+                            <div className="space-y-2">
+                                <Label className="text-[9px] text-gray-500 font-black uppercase tracking-tighter">Smile Curvature</Label>
+                                <Slider
+                                    value={[pose.facial.mouth.smile]}
+                                    min={0}
+                                    max={1}
+                                    step={0.05}
+                                    className="w-full"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label className="text-[9px] text-gray-500 font-black uppercase tracking-tighter">Aperture Scale</Label>
+                                <Slider
+                                    value={[pose.facial.mouth.open]}
+                                    min={0}
+                                    max={1}
+                                    step={0.05}
+                                    className="w-full"
+                                />
+                            </div>
                         </div>
                     )}
                 </div>

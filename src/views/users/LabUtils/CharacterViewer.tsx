@@ -32,7 +32,7 @@ export interface CharacterViewerProps {
 }
 
 export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: CharacterViewerProps) => {
-  const [characterModel, setCharacterModel] = useState<'default' | 'bendable' | 'new_rigid' | 'new_bendable'>('bendable');
+  const [characterModel, setCharacterModel] = useState<'default' | 'bendable' | 'new_rigid' | 'new_bendable'>('default');
 
   const activePresets =
     characterModel === 'default' ? STANDARD_POSES :
@@ -165,14 +165,9 @@ export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: Characte
   );
 
   return (
-    <div className="relative w-full h-[100vh] flex overflow-hidden text-white font-sans" style={{ backgroundColor: '#020202' }}>
+    <div className="relative w-full flex overflow-hidden text-white font-sans" style={{ backgroundColor: '#020202' }}>
       {/* Sidebar */}
-      <aside className="w-24 border-r border-white/5 flex flex-col items-center py-8 gap-10 bg-gray-900 z-20">
-        <div className="mb-4">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-            <Box className="w-6 h-6 text-white" />
-          </div>
-        </div>
+      <aside className="w-24 min-h-[calc(100vh-12rem)] border-r border-white/5 flex flex-col items-center py-8 gap-10 bg-gray-900">
 
         <SidebarButton
           icon={Accessibility}
@@ -211,33 +206,36 @@ export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: Characte
 
       {/* Main Content */}
       <main className="flex-1 relative flex flex-col" style={{ backgroundColor: '#020202' }}>
-        {/* Header Overlay */}
-        <div className="absolute top-6 left-8 z-10 flex items-center gap-3">
-          <div className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/5 rounded-lg backdrop-blur-md">
-            <span className="text-xs font-medium text-gray-400">PoseLab.gg</span>
+        {/* Header/Breadcrumbs Overlay */}
+        <div className="absolute top-8 left-10 z-50 flex items-center gap-3">
+          <div className="flex items-center gap-3 px-5 py-2.5 bg-gray-900/40 border border-white/10 rounded-2xl backdrop-blur-2xl shadow-[0_0_40px_rgba(0,0,0,0.3)]">
+            <span className="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em] animate-pulse">PoseLab.gg</span>
             <span className="text-xs text-gray-600">/</span>
-            <span className="text-xs font-semibold text-white">Pose Editor</span>
+            <span className="text-[10px] font-black text-white uppercase tracking-widest bg-white/10 px-2 py-0.5 rounded">Pose Editor</span>
           </div>
         </div>
 
-        <button
+        {/* <button
           onClick={takeScreenshot}
-          className="absolute top-6 right-8 p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all backdrop-blur-md text-white group z-10"
+          className="absolute top-8 right-10 z-50 p-4 bg-gray-900/40 border border-white/10 rounded-2xl hover:bg-primary/20 hover:border-primary/50 transition-all backdrop-blur-2xl text-white group shadow-2xl"
         >
-          <Camera className="w-5 h-5 group-hover:scale-110 transition-transform" />
-        </button>
+          <Camera className="w-5 h-5 group-hover:scale-125 transition-transform" />
+        </button> */}
 
         {/* Canvas Area */}
-        <div className="flex-1 relative overflow-hidden" style={{ backgroundColor: '#020202' }}>
-          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 blur-[120px] rounded-full" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 blur-[120px] rounded-full" />
+        <div className="h-full relative overflow-hidden" style={{ backgroundColor: '#020202' }}>
+
+          {/* Ambient Glows - Cinematic Lighting behind character */}
+          <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] bg-blue-600/20 blur-[140px] rounded-full z-0 opacity-80" />
+          <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] bg-purple-600/20 blur-[140px] rounded-full z-0 opacity-80" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40%] h-[40%] bg-primary/5 blur-[100px] rounded-full z-0" />
 
           <Canvas
             ref={canvasRef}
             camera={{ position: [0, 2, 12], fov: 45 }}
-            gl={{ preserveDrawingBuffer: true, antialias: true, alpha: false }}
-            onCreated={({ scene, camera, gl }) => {
-              gl.setClearColor("#020202");
+            gl={{ preserveDrawingBuffer: true, antialias: true, alpha: true }}
+            className="z-10 relative" // Added relative to ensure z-index works on the R3F wrapper
+            onCreated={({ scene, camera }) => {
               sceneRef.current = scene;
               cameraRef.current = camera;
             }}
@@ -273,21 +271,20 @@ export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: Characte
         </div>
 
         {/* Bottom Bar */}
-        <div className="h-32 border-t border-white/5 bg-gray-900 flex items-center justify-center z-20">
-          <div className="flex items-center bg-gray-800/40 border border-white/5 rounded-2xl p-2 px-4 shadow-2xl backdrop-blur-xl">
-            <BottomControlGroup label="MODEL">
-              <button
-                onClick={() => handleModelChange('default')}
-                className={cn(
-                  "px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-widest transition-all duration-200 border",
-                  characterModel === 'default'
-                    ? "bg-blue-500/10 border-blue-500/50 text-blue-400"
-                    : "bg-white/5 border-white/5 text-gray-400 hover:border-white/20"
-                )}
-              >
-                STANDARD
-              </button>
-              <button
+        <div className="flex absolute right-5 top-5 items-center z-10 bg-gray-800/40 border border-white/5 rounded-2xl p-2 px-4 shadow-2xl backdrop-blur-xl">
+          <BottomControlGroup label="MODEL">
+            <button
+              onClick={() => handleModelChange('default')}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-widest transition-all duration-200 border",
+                characterModel === 'default'
+                  ? "bg-blue-500/10 border-blue-500/50 text-blue-400"
+                  : "bg-white/5 border-white/5 text-gray-400 hover:border-white/20"
+              )}
+            >
+              STANDARD
+            </button>
+            {/* <button
                 onClick={() => handleModelChange('bendable')}
                 className={cn(
                   "px-3 py-1.5 rounded-lg text-[10px] font-bold tracking-widest transition-all duration-200 border",
@@ -297,10 +294,10 @@ export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: Characte
                 )}
               >
                 BENDABLE
-              </button>
-            </BottomControlGroup>
+              </button> */}
+          </BottomControlGroup>
 
-            <BottomControlGroup label="NEW SYSTEM">
+          {/* <BottomControlGroup label="NEW SYSTEM">
               <button
                 onClick={() => handleModelChange('new_rigid')}
                 className={cn(
@@ -323,9 +320,9 @@ export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: Characte
               >
                 BENDABLE
               </button>
-            </BottomControlGroup>
+            </BottomControlGroup> */}
 
-            <BottomControlGroup label="JOINTS">
+          {/* <BottomControlGroup label="JOINTS">
               <ControlButton icon={Accessibility} active />
               <ControlButton icon={Accessibility} />
             </BottomControlGroup>
@@ -333,13 +330,12 @@ export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: Characte
             <BottomControlGroup label="VIEW">
               <ControlButton icon={RotateCcw} onClick={resetPose} />
               <ControlButton icon={RotateCw} />
-            </BottomControlGroup>
+            </BottomControlGroup> */}
 
-            <BottomControlGroup label="UTILITY">
-              <ControlButton icon={Camera} onClick={takeScreenshot} />
-              <ControlButton icon={Download} onClick={() => setRenderDialogOpen(true)} />
-            </BottomControlGroup>
-          </div>
+          <BottomControlGroup label="UTILITY">
+            <ControlButton icon={Camera} onClick={takeScreenshot} />
+            <ControlButton icon={Download} onClick={() => setRenderDialogOpen(true)} />
+          </BottomControlGroup>
         </div>
 
         {/* Floating Side Panel */}
@@ -399,9 +395,7 @@ export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: Characte
             )}
             {openPanel === "poseControls" && (
               characterModel === 'default' ?
-                //@ts-ignore
                 <StandardPoseControls pose={currentPose} onPoseChange={handlePoseChange} /> :
-                //@ts-ignore
                 <BendablePoseControls pose={currentPose} onPoseChange={handlePoseChange} />
             )}
           </div>
@@ -418,7 +412,7 @@ export const CharacterViewer = ({ skinImage, onChangeSkinClick, pose }: Characte
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
       `}</style>
-    </div>
+    </div >
   );
 };
 
